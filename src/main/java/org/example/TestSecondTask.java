@@ -2,11 +2,12 @@ package org.example;
 
 import com.beust.ah.A;
 import com.google.common.collect.Ordering;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.ProfilesIni;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -22,13 +23,43 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TestSecondTask {
+
+    private final String shopUrl = "https://demowebshop.tricentis.com/";
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @BeforeClass
+    public void beforeClass() {
+        this.driver = new ChromeDriver();
+
+        //this.driver = new FirefoxDriver();
+
+        driver.manage().window().maximize();
+
+        this.driver.get(shopUrl);
+
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @BeforeTest
+    void addDelay() throws InterruptedException {
+        Thread.sleep(5000);
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void afterClass() {
+        if (this.driver != null) {
+            this.driver.quit();
+        }
+    }
     @Test()
-    public void registerUser() {
-        WebDriver driver = new ChromeDriver();
+    public void registerUser() throws InterruptedException {
+        this.driver.get(this.shopUrl);
+
+        Thread.sleep(1500);
+
         String uniqueId = UUID.randomUUID().toString().replace("-", "");
         String testEmail = "olenkatyut+test_" + uniqueId + "@gmail.com";
-
-        driver.get("https://demowebshop.tricentis.com/");
 
         WebElement registerLink = driver.findElement(By.xpath("//a[contains(@href,'register')]"));
         registerLink.click();
@@ -53,18 +84,14 @@ public class TestSecondTask {
 
         String expected = "Log out";
         WebElement logoutLink = driver.findElement(By.xpath("//a[contains(@href,'logout')]"));
-        String actual = logoutLink.getAttribute("text");
+        String actual = logoutLink.getText();
 
         Assert.assertEquals(actual, expected);
-
-        driver.quit();
     }
 
     @Test()
     public void login() {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/");
+        this.driver.get(this.shopUrl);
 
         WebElement loginLink = driver.findElement(By.xpath("//a[contains(@href,'login')]"));
         loginLink.click();
@@ -80,15 +107,11 @@ public class TestSecondTask {
         String actual = logoutLink.getAttribute("text");
 
         Assert.assertEquals(actual, expected);
-
-        driver.quit();
     }
 
     @Test()
     public void checkSubgroups() {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/");
+        this.driver.get(this.shopUrl);
 
         WebElement computerCategory = driver.findElement(By.xpath("//a[contains(@href,'computers')]"));
         computerCategory.click();
@@ -103,15 +126,11 @@ public class TestSecondTask {
             String xPathElement = String.format("//a[@href='/computers']//a[contains(@href,'%s')]", expectedItem);
             Assert.assertNotNull(xPathElement);
         }
-
-        driver.quit();
     }
 
     @Test()
     public void checkSorting() {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/desktops");
+        this.driver.get(this.shopUrl);
 
         WebElement selectElement1 = driver.findElement(By.name("products-orderby"));
         Select select1 = new Select(selectElement1);
@@ -144,15 +163,11 @@ public class TestSecondTask {
 
         Assert.assertNotEquals(sortedTitles.size(), 0);
         Assert.assertEquals(sortedTitles, titles);
-
-        driver.quit();
     }
 
     @Test()
     public void checkItemCount() {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/desktops");
+        this.driver.get(this.shopUrl);
 
         WebElement selectElement1 = driver.findElement(By.name("products-pagesize"));
         Select select1 = new Select(selectElement1);
@@ -167,15 +182,11 @@ public class TestSecondTask {
 
         List<WebElement> productElements2 = driver.findElements(By.xpath("//div[@class='product-item']"));
         Assert.assertEquals(productElements2.size(), 4);
-
-        driver.quit();
     }
 
     @Test()
     public void addToWishlist() throws InterruptedException {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/");
+        this.driver.get(this.shopUrl);
 
         WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
         shoesCategory.click();
@@ -195,15 +206,11 @@ public class TestSecondTask {
         String actualWishlist = addToWishlistSuccess.getText();
 
         Assert.assertNotEquals(emptyWishlist, actualWishlist);
-
-        driver.quit();
     }
 
     @Test()
     public void addToCart() throws InterruptedException {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/");
+        this.driver.get(this.shopUrl);
 
         WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
         shoesCategory.click();
@@ -223,15 +230,11 @@ public class TestSecondTask {
         String actualCart = addToCartSuccess.getText();
 
         Assert.assertNotEquals(emptyCart, actualCart);
-
-        driver.quit();
     }
 
     @Test()
     public void removeFromCart() throws InterruptedException {
-        WebDriver driver = new ChromeDriver();
-
-        driver.get("https://demowebshop.tricentis.com/");
+        this.driver.get(this.shopUrl);
 
         WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
         shoesCategory.click();
@@ -259,17 +262,13 @@ public class TestSecondTask {
         String expectedMessage = "Your Shopping Cart is empty!";
 
         Assert.assertEquals(actualCart, expectedMessage);
-
-        driver.quit();
     }
 
     @Test()
     public void checkout() {
-        WebDriver driver = new ChromeDriver();
-        Duration timeout = Duration.ofSeconds(10);
-        WebDriverWait wait = new WebDriverWait(driver, timeout);
+        this.driver.get(this.shopUrl);
 
-        driver.get("https://demowebshop.tricentis.com/");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         WebElement loginLink = driver.findElement(By.xpath("//a[contains(@href,'login')]"));
         loginLink.click();
@@ -333,8 +332,6 @@ public class TestSecondTask {
         String expectedMessage = "Your order has been successfully processed!";
 
         Assert.assertEquals(actual, expectedMessage);
-
-        driver.quit();
     }
 
 }

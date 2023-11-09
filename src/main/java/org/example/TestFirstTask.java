@@ -20,7 +20,7 @@ import java.time.Duration;
 import java.util.Objects;
 
 public class TestFirstTask {
-    
+
     private final String epamUrl = "https://www.epam.com/";
     private WebDriver driver;
 
@@ -36,8 +36,8 @@ public class TestFirstTask {
 
     @BeforeClass
     public void beforeClass() {
-        // this.driver = new ChromeDriver();
-        this.driver = this.getFirefoxDriver();
+        this.driver = new ChromeDriver();
+        //this.driver = this.getFirefoxDriver();
 
         this.driver.manage().window().maximize();
 
@@ -47,6 +47,11 @@ public class TestFirstTask {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='onetrust-accept-btn-handler']")));
         WebElement cookieBanner = this.driver.findElement(By.xpath("//*[@id='onetrust-accept-btn-handler']"));
         cookieBanner.click();
+    }
+
+    @BeforeTest
+    void addDelay() throws InterruptedException {
+        Thread.sleep(1500);
     }
 
     @AfterClass(alwaysRun = true)
@@ -64,10 +69,6 @@ public class TestFirstTask {
 
         String expectedTitle = "EPAM | Software Engineering & Product Development Services";
         Assert.assertEquals(pageTitle, expectedTitle);
-    }
-
-    @BeforeTest void addDelay() throws InterruptedException {
-        Thread.sleep(1500);
     }
 
     @Test()

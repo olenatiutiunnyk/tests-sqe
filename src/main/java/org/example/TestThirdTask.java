@@ -9,6 +9,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.equalTo;
 
 public class TestThirdTask {
+    private final String petsStoreUrl = "https://petstore.swagger.io/v2";
     @Test
     public void createUser() {
         String uniqueId = UUID.randomUUID().toString().replace("-", "");
@@ -25,7 +26,7 @@ public class TestThirdTask {
                 + "\"userStatus\": 0"
                 + "}";
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .body(userJson)
                 .header("Content-Type", "application/json")
                 .when().post("/user")
@@ -37,7 +38,7 @@ public class TestThirdTask {
     @Test
     public void loginUser() {
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .queryParam("username", "otyut")
                 .queryParam("password", "Qwerty123")
                 .when().get("/user/login")
@@ -64,7 +65,7 @@ public class TestThirdTask {
                 + "}"
                 + "]";
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .body(userJson)
                 .header("Content-Type", "application/json")
                 .when().post("/user/createWithArray")
@@ -76,7 +77,7 @@ public class TestThirdTask {
     @Test
     public void logoutUser() {
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .when().get("/user/logout")
                 .then().assertThat().statusCode(200)
                 .body("code", equalTo(200))
@@ -105,7 +106,7 @@ public class TestThirdTask {
                 + "\"status\": \"available\""
                 + "}";
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .body(petJson)
                 .header("Content-Type", "application/json")
                 .when().post("/pet")
@@ -117,7 +118,7 @@ public class TestThirdTask {
     public void uploadPetImage() {
         File file = new File("src/img/petImage.png");
 
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .multiPart("file", file,"multipart/form-data")
                 .when().post("/pet/5/uploadImage")
                 .then().assertThat().statusCode(200)
@@ -127,7 +128,7 @@ public class TestThirdTask {
 
     @Test
     public void updatePet() {
-        given().baseUri("https://petstore.swagger.io/v2")
+        given().baseUri(petsStoreUrl)
                 .contentType("application/x-www-form-urlencoded")
                 .body("name=Holly&status=available")
                 .when().post("/pet/6")
@@ -138,7 +139,7 @@ public class TestThirdTask {
 
     @Test
     public void deletePet() {
-        given().baseUri("https://petstore.swagger.io/v2?")
+        given().baseUri(petsStoreUrl)
                 .when().delete("/pet/5")
                 .then().assertThat().statusCode(200)
                 .body("code", equalTo(200))
