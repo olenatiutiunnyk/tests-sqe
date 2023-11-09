@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class ThirdTask {
+public class TestThirdTask {
     @Test
     public void createUser() {
         String uniqueId = UUID.randomUUID().toString().replace("-", "");

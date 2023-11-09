@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class SecondTask {
+public class TestSecondTask {
     @Test()
     public void registerUser() {
         WebDriver driver = new ChromeDriver();
