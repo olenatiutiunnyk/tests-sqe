@@ -9,6 +9,35 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class PetstoreAPITest {
     private final String petsStoreUrl = "https://petstore.swagger.io/v2";
+
+    private void addPetInSystem(String id) {
+        String petJson = "{"
+                + "\"id\": " + id + ","
+                + "\"category\": {"
+                + "  \"id\": 0,"
+                + "  \"name\": \"pug\""
+                + "},"
+                + "\"name\": \"nolly\","
+                + "\"photoUrls\": ["
+                + "  \"photoUrlExample\""
+                + "],"
+                + "\"tags\": ["
+                + "  {"
+                + "    \"id\": 0,"
+                + "    \"name\": \"tagName\""
+                + "  }"
+                + "],"
+                + "\"status\": \"available\""
+                + "}";
+
+        given().baseUri(petsStoreUrl)
+                .body(petJson)
+                .header("Content-Type", "application/json")
+                .when().post("/pet")
+                .then().assertThat().statusCode(200)
+                .extract();
+    }
+
     @Test
     public void createUser() {
         String testEmail = Utils.generateRandomEmail();
@@ -81,31 +110,7 @@ public class PetstoreAPITest {
 
     @Test
     public void addPet() {
-        String petJson = "{"
-                + "\"id\": 0,"
-                + "\"category\": {"
-                + "  \"id\": 0,"
-                + "  \"name\": \"pug\""
-                + "},"
-                + "\"name\": \"nolly\","
-                + "\"photoUrls\": ["
-                + "  \"photoUrlExample\""
-                + "],"
-                + "\"tags\": ["
-                + "  {"
-                + "    \"id\": 0,"
-                + "    \"name\": \"tagName\""
-                + "  }"
-                + "],"
-                + "\"status\": \"available\""
-                + "}";
-
-        given().baseUri(petsStoreUrl)
-                .body(petJson)
-                .header("Content-Type", "application/json")
-                .when().post("/pet")
-                .then().assertThat().statusCode(200)
-                .extract();
+        this.addPetInSystem("1");
     }
 
     @Test
@@ -122,6 +127,8 @@ public class PetstoreAPITest {
 
     @Test
     public void updatePet() {
+        this.addPetInSystem("6");
+
         given().baseUri(petsStoreUrl)
                 .contentType("application/x-www-form-urlencoded")
                 .body("name=Holly&status=available")
@@ -133,6 +140,8 @@ public class PetstoreAPITest {
 
     @Test
     public void deletePet() {
+        this.addPetInSystem("5");
+
         given().baseUri(petsStoreUrl)
                 .when().delete("/pet/5")
                 .then().assertThat().statusCode(200)
