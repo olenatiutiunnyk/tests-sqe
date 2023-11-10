@@ -28,13 +28,27 @@ public class TestSecondTask {
     private WebDriver driver;
     private WebDriverWait wait;
 
+    private FirefoxDriver getFirefoxDriver() {
+        ProfilesIni profile = new ProfilesIni();
+        FirefoxProfile firefoxProfile = profile.getProfile("default"); // "default" - назва профілю
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments("--width=1920");
+        options.addArguments("--height=1080");
+        options.setProfile(firefoxProfile);
+        return new FirefoxDriver(options);
+    }
+
+    private ChromeDriver getChromeDriver() {
+        ChromeDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        return driver;
+    }
+
     @BeforeClass
     public void beforeClass() {
-        this.driver = new ChromeDriver();
+        // this.driver = getChromeDriver();
 
-        //this.driver = new FirefoxDriver();
-
-        driver.manage().window().maximize();
+        this.driver = this.getFirefoxDriver();
 
         this.driver.get(shopUrl);
 
@@ -48,15 +62,13 @@ public class TestSecondTask {
 
     @AfterClass(alwaysRun = true)
     public void afterClass() {
-        if (this.driver != null) {
-            this.driver.quit();
-        }
+//        if (this.driver != null) {
+//            this.driver.quit();
+//        }
     }
     @Test()
     public void registerUser() throws InterruptedException {
         this.driver.get(this.shopUrl);
-
-        Thread.sleep(1500);
 
         String uniqueId = UUID.randomUUID().toString().replace("-", "");
         String testEmail = "olenkatyut+test_" + uniqueId + "@gmail.com";
@@ -82,6 +94,8 @@ public class TestSecondTask {
         WebElement confirmPassword = driver.findElement(By.id("ConfirmPassword"));
         confirmPassword.sendKeys("Qwerty1"+ Keys.ENTER);
 
+        Thread.sleep(1000);
+
         String expected = "Log out";
         WebElement logoutLink = driver.findElement(By.xpath("//a[contains(@href,'logout')]"));
         String actual = logoutLink.getText();
@@ -90,7 +104,7 @@ public class TestSecondTask {
     }
 
     @Test()
-    public void login() {
+    public void login() throws InterruptedException {
         this.driver.get(this.shopUrl);
 
         WebElement loginLink = driver.findElement(By.xpath("//a[contains(@href,'login')]"));
@@ -101,6 +115,8 @@ public class TestSecondTask {
 
         WebElement password = driver.findElement(By.id("Password"));
         password.sendKeys("Qwerty1" + Keys.ENTER);
+
+        Thread.sleep(1000);
 
         String expected = "Log out";
         WebElement logoutLink = driver.findElement(By.xpath("//a[contains(@href,'logout')]"));
@@ -130,7 +146,7 @@ public class TestSecondTask {
 
     @Test()
     public void checkSorting() {
-        this.driver.get(this.shopUrl);
+        this.driver.get(this.shopUrl + "desktops");
 
         WebElement selectElement1 = driver.findElement(By.name("products-orderby"));
         Select select1 = new Select(selectElement1);
@@ -167,7 +183,7 @@ public class TestSecondTask {
 
     @Test()
     public void checkItemCount() {
-        this.driver.get(this.shopUrl);
+        this.driver.get(this.shopUrl + "desktops");
 
         WebElement selectElement1 = driver.findElement(By.name("products-pagesize"));
         Select select1 = new Select(selectElement1);
@@ -265,7 +281,7 @@ public class TestSecondTask {
     }
 
     @Test()
-    public void checkout() {
+    public void checkout() throws InterruptedException {
         this.driver.get(this.shopUrl);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -277,7 +293,10 @@ public class TestSecondTask {
         email.sendKeys("olenkatyut@gmail.com");
 
         WebElement password = driver.findElement(By.id("Password"));
-        password.sendKeys("Qwerty1" + Keys.ENTER);
+        password.sendKeys("Qwerty1");
+
+        WebElement loginButton = driver.findElement(By.xpath("//input[@type='submit' and contains(@class, 'login-button')]"));
+        loginButton.click();
 
         WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
         shoesCategory.click();
@@ -293,7 +312,7 @@ public class TestSecondTask {
         WebElement cartMenu = driver.findElement(By.xpath("//*[@id='topcartlink']//a[contains(@href,'cart')]"));
         cartMenu.click();
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='termsofservice']")));
+        Thread.sleep(1000);
         WebElement acceptTerms = driver.findElement(By.xpath("//*[@id='termsofservice']"));
         acceptTerms.click();
 
@@ -301,7 +320,8 @@ public class TestSecondTask {
         WebElement checkoutButton = driver.findElement(By.xpath("//*[@id='checkout']"));
         checkoutButton.click();
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='billing-buttons-container']/input")));
+        Thread.sleep(2000);
+
         WebElement passFirstStep = driver.findElement(By.xpath("//*[@id='billing-buttons-container']/input"));
         passFirstStep.click();
 

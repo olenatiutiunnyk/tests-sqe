@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.util.Objects;
 
 public class TestFirstTask {
-
     private final String epamUrl = "https://www.epam.com/";
     private WebDriver driver;
 
@@ -34,9 +33,15 @@ public class TestFirstTask {
         return new FirefoxDriver(options);
     }
 
+    private ChromeDriver getChromeDriver() {
+        ChromeDriver driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        return driver;
+    }
+
     @BeforeClass
     public void beforeClass() {
-        this.driver = new ChromeDriver();
+        this.driver = this.getChromeDriver();
         //this.driver = this.getFirefoxDriver();
 
         this.driver.manage().window().maximize();
