@@ -6,23 +6,17 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.ProfilesIni;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
-
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
 public class DemoWebShopSiteTest {
 
-    private final String shopUrl = "https://demowebshop.tricentis.com/";
+    private final String shopUrl = "https://demowebshop.tricentis.com";
     private WebDriver driver;
-    private WebDriverWait wait;
+    private Utils utils;
 
     private FirefoxDriver getFirefoxDriver() {
         ProfilesIni profile = new ProfilesIni();
@@ -42,18 +36,10 @@ public class DemoWebShopSiteTest {
 
     @BeforeClass
     public void beforeClass() {
-        // this.driver = getChromeDriver();
-
+        // driver = getChromeDriver();
         this.driver = this.getFirefoxDriver();
 
-        this.driver.get(shopUrl);
-
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    }
-
-    @BeforeTest
-    void addDelay() throws InterruptedException {
-        Thread.sleep(5000);
+        this.utils = new Utils(driver);
     }
 
     @AfterClass(alwaysRun = true)
@@ -63,59 +49,50 @@ public class DemoWebShopSiteTest {
         }
     }
     @Test()
-    public void registerUser() throws InterruptedException {
+    public void registerUser() {
         this.driver.get(this.shopUrl);
 
         String testEmail = Utils.generateRandomEmail();
 
-        WebElement registerLink = driver.findElement(By.xpath("//a[contains(@href,'register')]"));
-        registerLink.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'register')]");
 
-        WebElement genderMale = driver.findElement(By.id("gender-male"));
-        genderMale.click();
+        this.utils.clickVisibilityElement("//*[@id='gender-male']");
 
-        WebElement firstName = driver.findElement(By.id("FirstName"));
+        WebElement firstName = this.driver.findElement(By.id("FirstName"));
         firstName.sendKeys("Olena");
 
-        WebElement lastName = driver.findElement(By.id("LastName"));
+        WebElement lastName = this.driver.findElement(By.id("LastName"));
         lastName.sendKeys("Zhymkova");
 
-        WebElement email = driver.findElement(By.id("Email"));
+        WebElement email = this.driver.findElement(By.id("Email"));
         email.sendKeys(testEmail);
 
-        WebElement password = driver.findElement(By.id("Password"));
+        WebElement password = this.driver.findElement(By.id("Password"));
         password.sendKeys("Qwerty1");
 
-        WebElement confirmPassword = driver.findElement(By.id("ConfirmPassword"));
+        WebElement confirmPassword = this.driver.findElement(By.id("ConfirmPassword"));
         confirmPassword.sendKeys("Qwerty1"+ Keys.ENTER);
 
-        Thread.sleep(1000);
-
         String expected = "Log out";
-        WebElement logoutLink = driver.findElement(By.xpath("//a[contains(@href,'logout')]"));
-        String actual = logoutLink.getText();
+        String actual = this.utils.getVisibilityElementText("//a[contains(@href,'logout')]");
 
         Assert.assertEquals(actual, expected);
     }
 
     @Test()
-    public void login() throws InterruptedException {
+    public void login() {
         this.driver.get(this.shopUrl);
 
-        WebElement loginLink = driver.findElement(By.xpath("//a[contains(@href,'login')]"));
-        loginLink.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'login')]");
 
-        WebElement email = driver.findElement(By.id("Email"));
+        WebElement email = this.driver.findElement(By.id("Email"));
         email.sendKeys("olenkatyut@gmail.com");
 
-        WebElement password = driver.findElement(By.id("Password"));
+        WebElement password = this.driver.findElement(By.id("Password"));
         password.sendKeys("Qwerty1" + Keys.ENTER);
 
-        Thread.sleep(1000);
-
         String expected = "Log out";
-        WebElement logoutLink = driver.findElement(By.xpath("//a[contains(@href,'logout')]"));
-        String actual = logoutLink.getAttribute("text");
+        String actual = this.utils.getVisibilityElementText("//a[contains(@href,'logout')]");
 
         Assert.assertEquals(actual, expected);
     }
@@ -124,8 +101,7 @@ public class DemoWebShopSiteTest {
     public void checkSubgroups() {
         this.driver.get(this.shopUrl);
 
-        WebElement computerCategory = driver.findElement(By.xpath("//a[contains(@href,'computers')]"));
-        computerCategory.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'computers')]");
 
         String[] expectedItems = {
                 "desktops",
@@ -141,13 +117,13 @@ public class DemoWebShopSiteTest {
 
     @Test()
     public void checkSorting() {
-        this.driver.get(this.shopUrl + "desktops");
+        this.driver.get(this.shopUrl + "/desktops");
 
-        WebElement selectElement1 = driver.findElement(By.name("products-orderby"));
-        Select select1 = new Select(selectElement1);
-        select1.selectByVisibleText("Price: Low to High");
+        WebElement selectElementBefore = this.driver.findElement(By.name("products-orderby"));
+        Select selectBefore = new Select(selectElementBefore);
+        selectBefore.selectByVisibleText("Price: Low to High");
 
-        List<WebElement> priceElements = driver.findElements(By.xpath("//span[contains(@class, 'actual-price')]"));
+        List<WebElement> priceElements = this.driver.findElements(By.xpath("//span[contains(@class, 'actual-price')]"));
         List<Double> prices = new ArrayList<>();
 
         for (WebElement element : priceElements) {
@@ -159,11 +135,11 @@ public class DemoWebShopSiteTest {
         Assert.assertNotEquals(sortedPrices.size(), 0);
         Assert.assertEquals(sortedPrices, prices);
 
-        WebElement selectElement2 = driver.findElement(By.name("products-orderby"));
-        Select select2 = new Select(selectElement2);
-        select2.selectByVisibleText("Name: A to Z");
+        WebElement selectElementAfter = this.driver.findElement(By.name("products-orderby"));
+        Select selectAfter = new Select(selectElementAfter);
+        selectAfter.selectByVisibleText("Name: A to Z");
 
-        List<WebElement> titleElements = driver.findElements(By.xpath("//h2[@class='product-title']//a"));
+        List<WebElement> titleElements = this.driver.findElements(By.xpath("//h2[@class='product-title']//a"));
         List<String> titles = new ArrayList<>();
 
         for (WebElement element : titleElements) {
@@ -178,97 +154,74 @@ public class DemoWebShopSiteTest {
 
     @Test()
     public void checkItemCount() {
-        this.driver.get(this.shopUrl + "desktops");
+        this.driver.get(this.shopUrl + "/desktops");
 
-        WebElement selectElement1 = driver.findElement(By.name("products-pagesize"));
-        Select select1 = new Select(selectElement1);
-        select1.selectByVisibleText("8");
+        WebElement selectElementBefore = this.driver.findElement(By.name("products-pagesize"));
+        Select selectBefore = new Select(selectElementBefore);
+        selectBefore.selectByVisibleText("8");
 
-        List<WebElement> productElements = driver.findElements(By.xpath("//div[@class='product-item']"));
-        Assert.assertEquals(productElements.size(), 6);
+        List<WebElement> productElementsBefore = this.driver.findElements(By.xpath("//div[@class='product-item']"));
+        Assert.assertEquals(productElementsBefore.size(), 6);
 
-        WebElement selectElement2 = driver.findElement(By.name("products-pagesize"));
-        Select select2 = new Select(selectElement2);
-        select2.selectByVisibleText("4");
+        WebElement selectElementAfter = this.driver.findElement(By.name("products-pagesize"));
+        Select selectAfter = new Select(selectElementAfter);
+        selectAfter.selectByVisibleText("4");
 
-        List<WebElement> productElements2 = driver.findElements(By.xpath("//div[@class='product-item']"));
-        Assert.assertEquals(productElements2.size(), 4);
+        List<WebElement> productElementAfter = this.driver.findElements(By.xpath("//div[@class='product-item']"));
+        Assert.assertEquals(productElementAfter.size(), 4);
     }
 
     @Test()
-    public void addToWishlist() throws InterruptedException {
+    public void addToWishlist(){
         this.driver.get(this.shopUrl);
 
-        WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
-        shoesCategory.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'apparel-shoes')]");
 
-        WebElement shoesProduct = driver.findElement(By.xpath("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]"));
-        shoesProduct.click();
+        this.utils.clickVisibilityElement("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]");
 
-        WebElement wishlistBeforeAdding = driver.findElement(By.xpath("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']"));
-        String emptyWishlist = wishlistBeforeAdding.getText();
+        String emptyWishlist = this.utils.getVisibilityElementText("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']");
 
-        WebElement wishlistIcon = driver.findElement(By.xpath("//*[@id='add-to-wishlist-button-5']"));
-        wishlistIcon.click();
+        this.utils.clickVisibilityElement("//*[@id='add-to-wishlist-button-5']");
 
-        Thread.sleep(2000);
-
-        WebElement addToWishlistSuccess = driver.findElement(By.xpath("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']"));
-        String actualWishlist = addToWishlistSuccess.getText();
+        String actualWishlist = this.utils.getVisibilityElementText("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']");
 
         Assert.assertNotEquals(emptyWishlist, actualWishlist);
     }
 
     @Test()
-    public void addToCart() throws InterruptedException {
+    public void addToCart() {
         this.driver.get(this.shopUrl);
 
-        WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
-        shoesCategory.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'apparel-shoes')]");
 
-        WebElement shoesProduct = driver.findElement(By.xpath("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]"));
-        shoesProduct.click();
+        this.utils.clickVisibilityElement("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]");
 
-        WebElement cartBeforeAdding = driver.findElement(By.xpath("//a[contains(@href,'cart')]//span[@class = 'cart-qty']"));
-        String emptyCart = cartBeforeAdding.getText();
+        String emptyCart = this.utils.getVisibilityElementText("//a[contains(@href,'cart')]//span[@class = 'cart-qty']");
 
-        WebElement cartButton = driver.findElement(By.xpath("//*[@id='add-to-cart-button-5']"));
-        cartButton.click();
+        this.utils.clickVisibilityElement("//*[@id='add-to-cart-button-5']");
 
-        Thread.sleep(2000);
-
-        WebElement addToCartSuccess = driver.findElement(By.xpath("//a[contains(@href,'cart')]//span[@class = 'cart-qty']"));
-        String actualCart = addToCartSuccess.getText();
+        String actualCart = this.utils.getVisibilityElementText("//a[contains(@href,'cart')]//span[@class = 'cart-qty']");
 
         Assert.assertNotEquals(emptyCart, actualCart);
     }
 
     @Test()
-    public void removeFromCart() throws InterruptedException {
+    public void removeFromCart() {
         this.driver.get(this.shopUrl);
 
-        WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
-        shoesCategory.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'apparel-shoes')]");
 
-        WebElement shoesProduct = driver.findElement(By.xpath("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]"));
-        shoesProduct.click();
+        this.utils.clickVisibilityElement("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]");
 
-        WebElement cartButton = driver.findElement(By.xpath("//*[@id='add-to-cart-button-5']"));
-        cartButton.click();
+        this.utils.clickVisibilityElement("//*[@id='add-to-cart-button-5']");
 
-        Thread.sleep(2000);
+        this.utils.clickVisibilityElement("//*[@id='topcartlink']//a[contains(@href,'cart')]");
 
-        WebElement cartMenu = driver.findElement(By.xpath("//*[@id='topcartlink']//a[contains(@href,'cart')]"));
-        cartMenu.click();
+        this.utils.clickVisibilityElement("//input[contains(@name,'removefromcart')]");
 
-        WebElement removeFromCartCheckbox = driver.findElement(By.xpath("//input[contains(@name,'removefromcart')]"));
-        removeFromCartCheckbox.click();
+        this.utils.clickVisibilityElement("//input[contains(@name,'updatecart')]");
 
-        WebElement updateCart = driver.findElement(By.xpath("//input[contains(@name,'updatecart')]"));
-        updateCart.click();
-
-        WebElement emptyCartMessage = driver.findElement(By.xpath("//div[contains(@class,'order-summary-content')]"));
-        String actualCart = emptyCartMessage.getText();
+        String actualCart = this.utils.getVisibilityElementText("//div[contains(@class,'order-summary-content')]");
 
         String expectedMessage = "Your Shopping Cart is empty!";
 
@@ -276,73 +229,44 @@ public class DemoWebShopSiteTest {
     }
 
     @Test()
-    public void checkout() throws InterruptedException {
+    public void checkout() {
         this.driver.get(this.shopUrl);
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.utils.clickVisibilityElement("//a[contains(@href,'login')]");
 
-        WebElement loginLink = driver.findElement(By.xpath("//a[contains(@href,'login')]"));
-        loginLink.click();
-
-        WebElement email = driver.findElement(By.id("Email"));
+        WebElement email = this.driver.findElement(By.id("Email"));
         email.sendKeys("olenkatyut@gmail.com");
 
-        WebElement password = driver.findElement(By.id("Password"));
+        WebElement password = this.driver.findElement(By.id("Password"));
         password.sendKeys("Qwerty1");
 
-        WebElement loginButton = driver.findElement(By.xpath("//input[@type='submit' and contains(@class, 'login-button')]"));
-        loginButton.click();
+        this.utils.clickVisibilityElement("//input[@type='submit' and contains(@class, 'login-button')]");
 
-        WebElement shoesCategory = driver.findElement(By.xpath("//a[contains(@href,'apparel-shoes')]"));
-        shoesCategory.click();
+        this.utils.clickVisibilityElement("//a[contains(@href,'apparel-shoes')]");
 
-        WebElement shoesProduct = driver.findElement(By.xpath("//*[@class='product-item']//a[contains(@href,'/50s-rockabilly-polka-dot-top-jr-plus-size')]"));
-        shoesProduct.click();
+        this.utils.clickVisibilityElement("//*[@class='product-item']//a[contains(@href,'/50s-rockabilly-polka-dot-top-jr-plus-size')]");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='add-to-cart-button-5']")));
-        WebElement cartButton = driver.findElement(By.xpath("//*[@id='add-to-cart-button-5']"));
-        cartButton.click();
+        this.utils.clickVisibilityElement("//*[@id='add-to-cart-button-5']");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='topcartlink']//a[contains(@href,'cart')]")));
-        WebElement cartMenu = driver.findElement(By.xpath("//*[@id='topcartlink']//a[contains(@href,'cart')]"));
-        cartMenu.click();
+        this.utils.clickVisibilityElement("//*[@id='topcartlink']//a[contains(@href,'cart')]");
 
-        Thread.sleep(1000);
-        WebElement acceptTerms = driver.findElement(By.xpath("//*[@id='termsofservice']"));
-        acceptTerms.click();
+        this.utils.clickVisibilityElement("//*[@id='termsofservice']");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='checkout']")));
-        WebElement checkoutButton = driver.findElement(By.xpath("//*[@id='checkout']"));
-        checkoutButton.click();
+        this.utils.clickVisibilityElement("//*[@id='checkout']");
 
-        Thread.sleep(2000);
+        this.utils.clickVisibilityElement("//*[@id='billing-buttons-container']/input");
 
-        WebElement passFirstStep = driver.findElement(By.xpath("//*[@id='billing-buttons-container']/input"));
-        passFirstStep.click();
+        this.utils.clickVisibilityElement("//*[@id='shipping-buttons-container']/input");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='shipping-buttons-container']/input")));
-        WebElement passSecondStep = driver.findElement(By.xpath("//*[@id='shipping-buttons-container']/input"));
-        passSecondStep.click();
+        this.utils.clickVisibilityElement("//*[@id='shipping-method-buttons-container']/input");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='shipping-method-buttons-container']/input")));
-        WebElement passThirdStep = driver.findElement(By.xpath("//*[@id='shipping-method-buttons-container']/input"));
-        passThirdStep.click();
+        this.utils.clickVisibilityElement("//*[@id='payment-method-buttons-container']/input");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='payment-method-buttons-container']/input")));
-        WebElement passFourthStep = driver.findElement(By.xpath("//*[@id='payment-method-buttons-container']/input"));
-        passFourthStep.click();
+        this.utils.clickVisibilityElement("//*[@id='payment-info-buttons-container']/input");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='payment-info-buttons-container']/input")));
-        WebElement passFifthStep = driver.findElement(By.xpath("//*[@id='payment-info-buttons-container']/input"));
-        passFifthStep.click();
+        this.utils.clickVisibilityElement("//*[@id='confirm-order-buttons-container']/input");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='confirm-order-buttons-container']/input")));
-        WebElement confirmOrder = driver.findElement(By.xpath("//*[@id='confirm-order-buttons-container']/input"));
-        confirmOrder.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'order-completed')]//strong")));
-        WebElement successCheckout = driver.findElement(By.xpath("//div[contains(@class,'order-completed')]//strong"));
-        String actual = successCheckout.getText();
+        String actual = this.utils.getVisibilityElementText("//div[contains(@class,'order-completed')]//strong");
 
         String expectedMessage = "Your order has been successfully processed!";
 

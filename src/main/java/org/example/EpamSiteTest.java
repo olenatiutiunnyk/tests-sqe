@@ -9,19 +9,14 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.ProfilesIni;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 import java.io.File;
 
-
-import java.time.Duration;
-import java.util.Objects;
-
 public class EpamSiteTest {
-    private final String epamUrl = "https://www.epam.com/";
+    private final String epamUrl = "https://www.epam.com";
     private WebDriver driver;
+    private Utils utils;
 
     private FirefoxDriver getFirefoxDriver() {
         ProfilesIni profile = new ProfilesIni();
@@ -44,19 +39,11 @@ public class EpamSiteTest {
         this.driver = this.getChromeDriver();
         //this.driver = this.getFirefoxDriver();
 
-        this.driver.manage().window().maximize();
-
         this.driver.get(epamUrl);
 
-        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='onetrust-accept-btn-handler']")));
-        WebElement cookieBanner = this.driver.findElement(By.xpath("//*[@id='onetrust-accept-btn-handler']"));
-        cookieBanner.click();
-    }
+        this.utils = new Utils(driver);
 
-    @BeforeTest
-    void addDelay() throws InterruptedException {
-        Thread.sleep(1500);
+        this.utils.clickVisibilityElement("//*[@id='onetrust-accept-btn-handler']");
     }
 
     @AfterClass(alwaysRun = true)
@@ -70,7 +57,7 @@ public class EpamSiteTest {
     public void checkTitle() {
         this.driver.get(this.epamUrl);
 
-        String pageTitle = driver.getTitle();
+        String pageTitle = this.driver.getTitle();
 
         String expectedTitle = "EPAM | Software Engineering & Product Development Services";
         Assert.assertEquals(pageTitle, expectedTitle);
@@ -80,10 +67,10 @@ public class EpamSiteTest {
     public void switchTheme() {
         this.driver.get(this.epamUrl);
 
-        WebElement themeSwitcher = driver.findElement(By.xpath("(//*[@id='wrapper']//section[@class='theme-switcher-ui'] //div[@class='theme-switcher'])[2]"));
-        themeSwitcher.click();
+        this.utils.clickVisibilityElement("(//*[@id='wrapper']//section[@class='theme-switcher-ui']//div[@class='theme-switcher'])[2]");
 
-        String headerColor = driver.findElement(By.xpath("//*[@id='wrapper']//div[@class='header__inner']")).getCssValue("background-color");
+        WebElement wrapper = this.driver.findElement(By.xpath("//*[@id='wrapper']//div[@class='header__inner']"));
+        String headerColor = wrapper.getCssValue("background-color");
 
         String expectedTheme = "rgba(0, 0, 0, 0)";
         Assert.assertEquals(headerColor, expectedTheme);
@@ -93,16 +80,13 @@ public class EpamSiteTest {
     public void switchLang() {
         this.driver.get(this.epamUrl);
 
-        WebElement langComponentDefault = driver.findElement(By.xpath("//*[@id='wrapper']//button[@class='location-selector__button']"));
-        langComponentDefault.click();
+        this.utils.clickVisibilityElement("//*[@id='wrapper']//button[@class='location-selector__button']");
 
-        WebElement UaLanguage = driver.findElement(By.xpath("(//*[@id='wrapper']//a[@href='https://careers.epam.ua'])[2]"));
-        UaLanguage.click();
-
-        WebElement langComponentUA = driver.findElement(By.xpath("//*[@id='wrapper']//button[@class='location-selector__button']"));
-        String actual = langComponentUA.getText();
+        this.utils.clickVisibilityElement("(//*[@id='wrapper']//a[@href='https://careers.epam.ua'])[2]");
 
         String expectedLang = "Україна (UA)";
+        String actual = this.utils.getVisibilityElementText("//*[@id='wrapper']//button[@class='location-selector__button']");
+
         Assert.assertEquals(actual, expectedLang);
     }
 
@@ -110,8 +94,7 @@ public class EpamSiteTest {
     public void checkPoliciesList() {
         this.driver.get(this.epamUrl);
 
-        WebElement policiesList = driver.findElement(By.xpath("//*[@class='policies-links-wrapper']"));
-        String policiesText = policiesList.getText();
+        String policiesText = this.utils.getVisibilityElementText("//*[@class='policies-links-wrapper']");
 
         String[] expectedItems = {
             "INVESTORS",
@@ -139,59 +122,51 @@ public class EpamSiteTest {
 
         for (String expectedItem : expectedItems) {
             String xPathElement = String.format("//a[contains(@class,'js-tabs-link') and contains(text(),'%s')]", expectedItem);
-
-            WebElement locationTab = this.driver.findElement(By.xpath(xPathElement));
-            locationTab.click();
+            this.utils.clickVisibilityElement(xPathElement);
         }
     }
 
     @Test()
-    public void searchFunc() throws InterruptedException {
+    public void searchFunc() {
         this.driver.get(this.epamUrl);
 
-        WebElement searchIcon = this.driver.findElement(By.xpath("//*[@id='wrapper']//span[@class='search-icon dark-iconheader-search__search-icon']"));
-        searchIcon.click();
+        this.utils.clickVisibilityElement("//*[@id='wrapper']//span[@class='search-icon dark-iconheader-search__search-icon']");
 
         WebElement searchField = this.driver.findElement(By.xpath("//*[@id='new_form_search']"));
-        searchField.click();
         searchField.sendKeys("AI" + Keys.ENTER);
-        Thread.sleep(1000);
-
-        WebElement searchResult = this.driver.findElement(By.xpath("//*[@id='main']//span[@class='rte-text-gradient gradient-text']"));
-        String actual = searchResult.getText();
 
         String expectedLang = "Search";
+        String actual = this.utils.getVisibilityElementText("//*[@id='main']//span[@class='rte-text-gradient gradient-text']");
+
         Assert.assertEquals(actual, expectedLang);
     }
 
     @Test()
     public void checkValidation() {
-        this.driver.get(this.epamUrl + "about/who-we-are/contact");
+        this.driver.get(this.epamUrl + "/about/who-we-are/contact");
 
-        WebElement submitButton = this.driver.findElement(By.xpath("//button[contains(@class,'button-ui')]"));
-        submitButton.click();
+        this.utils.clickVisibilityElement("//button[contains(@class,'button-ui')]");
 
-        String firstNameFieldAtr = this.driver.findElement(By.id("_content_epam_en_about_who-we-are_contact_jcr_content_content-container_section_section-par_form_constructor_user_first_name")).getAttribute("aria-invalid");
-        String lastNameFieldAtr = this.driver.findElement(By.id("_content_epam_en_about_who-we-are_contact_jcr_content_content-container_section_section-par_form_constructor_user_last_name")).getAttribute("aria-invalid");
-        String emailFieldAtr = this.driver.findElement(By.id("_content_epam_en_about_who-we-are_contact_jcr_content_content-container_section_section-par_form_constructor_user_email")).getAttribute("aria-invalid");
-        String phoneFieldAtr = this.driver.findElement(By.id("_content_epam_en_about_who-we-are_contact_jcr_content_content-container_section_section-par_form_constructor_user_phone")).getAttribute("aria-invalid");
-        String textFieldAtr = this.driver.findElement(By.xpath("//span[contains(@aria-describedby,'user_comment_how_hear_about-error')]")).getAttribute("aria-invalid");
-        String consentFieldAtr = this.driver.findElement(By.xpath("//*[contains(@id,'new_form_gdprConsent_')]")).getAttribute("aria-invalid");
+        String firstNameValid = this.utils.getVisibilityElementAttribute("//input[@name='user_first_name']", "aria-invalid");
+        String lastNameFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_last_name']", "aria-invalid");
+        String emailFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_email']", "aria-invalid");
+        String phoneFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_phone']", "aria-invalid");
+        String textFieldValid = this.utils.getVisibilityElementAttribute("//span[contains(@aria-describedby,'user_comment_how_hear_about-error", "aria-invalid");
+        String consentFieldValid = this.utils.getVisibilityElementAttribute("//*[contains(@id,'new_form_gdprConsent_')]", "aria-invalid");
 
-        Assert.assertEquals(firstNameFieldAtr, "true");
-        Assert.assertEquals(lastNameFieldAtr, "true");
-        Assert.assertEquals(emailFieldAtr, "true");
-        Assert.assertEquals(phoneFieldAtr, "true");
-        Assert.assertEquals(textFieldAtr, "true");
-        Assert.assertEquals(consentFieldAtr, "true");
+        Assert.assertEquals(firstNameValid, "true");
+        Assert.assertEquals(lastNameFieldValid, "true");
+        Assert.assertEquals(emailFieldValid, "true");
+        Assert.assertEquals(phoneFieldValid, "true");
+        Assert.assertEquals(textFieldValid, "true");
+        Assert.assertEquals(consentFieldValid, "true");
     }
 
     @Test()
     public void logoRedirect() {
-        this.driver.get(this.epamUrl + "about");
+        this.driver.get(this.epamUrl + "/about");
 
-        WebElement logo = this.driver.findElement(By.xpath("(//*[@id='wrapper']//img[@class='header__logo header__logo-light'])[1]"));
-        logo.click();
+        this.utils.clickVisibilityElement("(//*[@id='wrapper']//img[@class='header__logo header__logo-light'])[1]");
 
         String currentUrl = this.driver.getCurrentUrl();
 
@@ -200,7 +175,7 @@ public class EpamSiteTest {
 
     @Test()
     public void downloadReport() throws InterruptedException {
-        String aboutPage = this.epamUrl + "about";
+        String aboutPage = this.epamUrl + "/about";
 
         this.driver.get(aboutPage);
 
@@ -209,10 +184,6 @@ public class EpamSiteTest {
         String fileName = hrefParts[hrefParts.length - 1];
 
         downloadButton.click();
-
-        if (!Objects.equals(this.driver.getCurrentUrl(), aboutPage)) {
-            this.driver.close();
-        }
 
         String downloadsFolderPath = "/Users/Olena_Tiutiunnyk/Downloads";
 

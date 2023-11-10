@@ -4,7 +4,6 @@ import org.testng.annotations.Test;
 import static io.restassured.RestAssured.given;
 
 import java.io.File;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -36,7 +35,6 @@ public class PetstoreAPITest {
 
     @Test
     public void loginUser() {
-
         given().baseUri(petsStoreUrl)
                 .queryParam("username", "otyut")
                 .queryParam("password", "Qwerty123")
@@ -74,7 +72,6 @@ public class PetstoreAPITest {
 
     @Test
     public void logoutUser() {
-
         given().baseUri(petsStoreUrl)
                 .when().get("/user/logout")
                 .then().assertThat().statusCode(200)
@@ -84,7 +81,6 @@ public class PetstoreAPITest {
 
     @Test
     public void addPet() {
-
         String petJson = "{"
                 + "\"id\": 0,"
                 + "\"category\": {"
