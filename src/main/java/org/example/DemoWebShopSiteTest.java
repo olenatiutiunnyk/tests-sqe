@@ -35,8 +35,8 @@ public class DemoWebShopSiteTest {
 
     @BeforeClass
     public void beforeClass() {
-        this.driver = getChromeDriver();
-        // this.driver = this.getFirefoxDriver();
+        // this.driver = getChromeDriver();
+        this.driver = this.getFirefoxDriver();
 
         this.utils = new Utils(driver);
     }
@@ -180,13 +180,13 @@ public class DemoWebShopSiteTest {
 
         this.utils.clickVisibilityElement("//*[@class='product-title']//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')]");
 
-        String emptyWishlist = this.utils.getVisibilityElementText("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']");
+        String emptyWishlist = this.utils.getVisibilityElementText("//span[@class = 'wishlist-qty']");
+        Assert.assertEquals(emptyWishlist, "(0)");
 
         this.utils.clickVisibilityElement("//*[@id='add-to-wishlist-button-5']");
 
-        String actualWishlist = this.utils.getVisibilityElementText("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']");
-
-        Assert.assertNotEquals(emptyWishlist, actualWishlist);
+        String actualWishlist = this.utils.getVisibilityElementText("//span[@class = 'wishlist-qty' and text()='(1)']");
+        Assert.assertEquals(actualWishlist, "(1)");
     }
 
     @Test()
