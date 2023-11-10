@@ -8,12 +8,11 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class TestThirdTask {
+public class PetstoreAPITest {
     private final String petsStoreUrl = "https://petstore.swagger.io/v2";
     @Test
     public void createUser() {
-        String uniqueId = UUID.randomUUID().toString().replace("-", "");
-        String testEmail = "olenkatyut+test_" + uniqueId + "@gmail.com";
+        String testEmail = Utils.generateRandomEmail();
 
         String userJson = "{"
                 + "\"id\": 0,"
@@ -49,8 +48,7 @@ public class TestThirdTask {
 
     @Test
     public void createArrayOfUsers() {
-        String uniqueId = UUID.randomUUID().toString().replace("-", "");
-        String testEmail = "olenkatyut+test_" + uniqueId + "@gmail.com";
+        String testEmail = Utils.generateRandomEmail();
 
         String userJson = "["
                 + "{"
@@ -145,7 +143,4 @@ public class TestThirdTask {
                 .body("code", equalTo(200))
                 .extract();
     }
-
-
-
 }

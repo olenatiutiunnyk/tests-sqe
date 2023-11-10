@@ -1,7 +1,5 @@
 package org.example;
 
-import com.beust.ah.A;
-import com.google.common.collect.Ordering;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -13,16 +11,14 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import java.io.File;
 
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-public class TestSecondTask {
+public class DemoWebShopSiteTest {
 
     private final String shopUrl = "https://demowebshop.tricentis.com/";
     private WebDriver driver;
@@ -62,16 +58,15 @@ public class TestSecondTask {
 
     @AfterClass(alwaysRun = true)
     public void afterClass() {
-//        if (this.driver != null) {
-//            this.driver.quit();
-//        }
+        if (this.driver != null) {
+            this.driver.quit();
+        }
     }
     @Test()
     public void registerUser() throws InterruptedException {
         this.driver.get(this.shopUrl);
 
-        String uniqueId = UUID.randomUUID().toString().replace("-", "");
-        String testEmail = "olenkatyut+test_" + uniqueId + "@gmail.com";
+        String testEmail = Utils.generateRandomEmail();
 
         WebElement registerLink = driver.findElement(By.xpath("//a[contains(@href,'register')]"));
         registerLink.click();

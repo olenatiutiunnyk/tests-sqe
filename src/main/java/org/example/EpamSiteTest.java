@@ -19,7 +19,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Objects;
 
-public class TestFirstTask {
+public class EpamSiteTest {
     private final String epamUrl = "https://www.epam.com/";
     private WebDriver driver;
 
