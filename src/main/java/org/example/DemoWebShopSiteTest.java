@@ -13,14 +13,13 @@ import org.testng.annotations.*;
 import java.util.ArrayList;
 import java.util.List;
 public class DemoWebShopSiteTest {
-
     private final String shopUrl = "https://demowebshop.tricentis.com";
     private WebDriver driver;
     private Utils utils;
 
     private FirefoxDriver getFirefoxDriver() {
         ProfilesIni profile = new ProfilesIni();
-        FirefoxProfile firefoxProfile = profile.getProfile("default"); // "default" - назва профілю
+        FirefoxProfile firefoxProfile = profile.getProfile("default");
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--width=1920");
         options.addArguments("--height=1080");
@@ -36,8 +35,8 @@ public class DemoWebShopSiteTest {
 
     @BeforeClass
     public void beforeClass() {
-        // driver = getChromeDriver();
-        this.driver = this.getFirefoxDriver();
+        this.driver = getChromeDriver();
+        // this.driver = this.getFirefoxDriver();
 
         this.utils = new Utils(driver);
     }
@@ -95,6 +94,8 @@ public class DemoWebShopSiteTest {
         String actual = this.utils.getVisibilityElementText("//a[contains(@href,'logout')]");
 
         Assert.assertEquals(actual, expected);
+
+        this.utils.clickVisibilityElement("//a[contains(@href,'logout')]");
     }
 
     @Test()
@@ -177,7 +178,7 @@ public class DemoWebShopSiteTest {
 
         this.utils.clickVisibilityElement("//a[contains(@href,'apparel-shoes')]");
 
-        this.utils.clickVisibilityElement("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]");
+        this.utils.clickVisibilityElement("//*[@class='product-title']//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')]");
 
         String emptyWishlist = this.utils.getVisibilityElementText("//a[contains(@href,'wishlist')]//span[@class = 'wishlist-qty']");
 
@@ -196,13 +197,13 @@ public class DemoWebShopSiteTest {
 
         this.utils.clickVisibilityElement("(//a[contains(@href,'50s-rockabilly-polka-dot-top-jr-plus-size')])[1]");
 
-        String emptyCart = this.utils.getVisibilityElementText("//a[contains(@href,'cart')]//span[@class = 'cart-qty']");
+        String emptyCart = this.utils.getVisibilityElementText("//span[@class='cart-qty']");
+        Assert.assertEquals(emptyCart, "(0)");
 
         this.utils.clickVisibilityElement("//*[@id='add-to-cart-button-5']");
 
-        String actualCart = this.utils.getVisibilityElementText("//a[contains(@href,'cart')]//span[@class = 'cart-qty']");
-
-        Assert.assertNotEquals(emptyCart, actualCart);
+        String cartWithProduct = this.utils.getVisibilityElementText("//span[@class='cart-qty' and text()='(1)']");
+        Assert.assertEquals(cartWithProduct, "(1)");
     }
 
     @Test()
@@ -271,6 +272,7 @@ public class DemoWebShopSiteTest {
         String expectedMessage = "Your order has been successfully processed!";
 
         Assert.assertEquals(actual, expectedMessage);
-    }
 
+        this.utils.clickVisibilityElement("//a[contains(@href,'logout')]");
+    }
 }

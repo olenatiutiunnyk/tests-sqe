@@ -37,7 +37,7 @@ public class EpamSiteTest {
     @BeforeClass
     public void beforeClass() {
         this.driver = this.getChromeDriver();
-        //this.driver = this.getFirefoxDriver();
+        // this.driver = this.getFirefoxDriver();
 
         this.driver.get(epamUrl);
 
@@ -151,7 +151,7 @@ public class EpamSiteTest {
         String lastNameFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_last_name']", "aria-invalid");
         String emailFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_email']", "aria-invalid");
         String phoneFieldValid = this.utils.getVisibilityElementAttribute("//input[@name='user_phone']", "aria-invalid");
-        String textFieldValid = this.utils.getVisibilityElementAttribute("//span[contains(@aria-describedby,'user_comment_how_hear_about-error", "aria-invalid");
+        String textFieldValid = this.utils.getVisibilityElementAttribute("//span[contains(@aria-describedby,'user_comment_how_hear_about-error')]", "aria-invalid");
         String consentFieldValid = this.utils.getVisibilityElementAttribute("//*[contains(@id,'new_form_gdprConsent_')]", "aria-invalid");
 
         Assert.assertEquals(firstNameValid, "true");
@@ -170,7 +170,7 @@ public class EpamSiteTest {
 
         String currentUrl = this.driver.getCurrentUrl();
 
-        Assert.assertEquals(currentUrl, this.epamUrl);
+        Assert.assertEquals(currentUrl, this.epamUrl + "/");
     }
 
     @Test()
